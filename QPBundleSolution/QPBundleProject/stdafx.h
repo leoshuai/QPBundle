@@ -23,3 +23,4 @@
 #include "mosek.h"
 #include "LPB.h"
 #include "InFunctions.h"
+#include "QPB.h"
