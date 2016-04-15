@@ -1,7 +1,6 @@
 After I added bound type for all the variables who are always free, it finally worked!
 
-test
-rgtstdhy
+23
 ========================================================================
     CONSOLE APPLICATION : EigenMosek Project Overview
 ========================================================================
