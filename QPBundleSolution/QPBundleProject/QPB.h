@@ -1,6 +1,8 @@
 #pragma once
 template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 {
+	using namespace std;
+	using namespace Eigen;
 	clock_t start = clock();
 	OutData o;
 	int n = x.size();
@@ -8,8 +10,9 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 	int l = 0;
 	int k_l = 0;
 	bool b1 = false;
-	double fx, ModelReduction, fxs;
-	VectorXd xStar(n), sStar(n),s(n), One;
+	double fx, ModelReduction, fxs, MSK_time;
+	VectorXd xStar(n), sStar(n), s(n), One;
+	const VectorXd rs;
 	rs.setLinSpaced(n, 0, n - 1);
 	One.setOnes(n);
 	feval(x, fx, s);
@@ -38,7 +41,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 				blx[i] = -MSK_INFINITY;
 				bux[i] = +MSK_INFINITY;
 			}
-			for (j = 0; j < n + 1 && r == MSK_RES_OK; ++j)
+			for (size_t j = 0; j < n + 1 && r == MSK_RES_OK; ++j)
 			{
 				/* Set the bounds on variable j.
 				blx[j] <= x_j <= bux[j] */
@@ -51,7 +54,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 			}
 			if (r == MSK_RES_OK)
 				r = MSK_putcfix(task, 0.5*x.squaredNorm());
-			for (j = 0; j < n && r == MSK_RES_OK; ++j)
+			for (size_t j = 0; j < n && r == MSK_RES_OK; ++j)
 			{
 				if (r == MSK_RES_OK)
 					r = MSK_putcj(task, j, -x(j));
@@ -94,6 +97,9 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 
 					/* Run optimizer */
 					r = MSK_optimizetrm(task, &trmcode);
+					if (r == MSK_RES_OK)
+						r = MSK_getdouinf(task, MSK_DINF_OPTIMIZER_TIME, &MSK_time);
+					o.t_CPX = o.t_CPX + MSK_time;
 
 					/* Print a summary containing information
 					about the solution for debugging purposes*/
@@ -103,7 +109,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 					{
 
 
-						MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
+						MSK_STREAM_LOG MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
 
 						switch (solsta)
 						{
@@ -114,8 +120,8 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 								xx);
 
 							printf("Optimal primal solution***********************\n");
-							for (j = 0; j < n + 1; ++j)
-								printf("x[%d]: %e\n", j, xx[j]);
+							/*for (size_t j = 0; j < n + 1; ++j)
+								printf("x[%d]: %e\n", j, xx[j]);*/
 
 							break;
 						case MSK_SOL_STA_DUAL_INFEAS_CER:
@@ -166,7 +172,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 					k_l = k + 1;
 					l++;
 					//In serious steps I need to update c_j and cfix in the objective
-					for (j = 0; j < n && r == MSK_RES_OK; ++j)
+					for (size_t j = 0; j < n && r == MSK_RES_OK; ++j)
 					{
 						if (r == MSK_RES_OK)
 							r = MSK_putcj(task, j, -xStar(j));
@@ -225,7 +231,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 		o.k = k;
 		o.L = k - l;
 		o.time = (clock() - start) / (double)CLOCKS_PER_SEC;
-		o.t_CPX = o.t_CPX / (double)CLOCKS_PER_SEC;
+		//o.t_CPX = o.t_CPX / (double)CLOCKS_PER_SEC;
 		cout << o.status << " is the status\n";
 		cout << o.Error << " is the error\n";
 		cout << o.f_final << " is the final value\n";
