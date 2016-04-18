@@ -13,7 +13,7 @@
 //	return 0;
 //}
 
-int main()
+int main1()
 {
 	using namespace std;
 	using namespace Eigen;
