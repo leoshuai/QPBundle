@@ -1,4 +1,6 @@
 #pragma once
+//typedef Matrix<MSKrealt, Dynamic, 1> VectorXMd;
+
 template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 {
 	using namespace std;
