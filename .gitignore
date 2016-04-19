@@ -26,3 +26,6 @@
 *.exe
 *.out
 *.app
+
+# Seems right from http://stackoverflow.com/questions/33811559/git-error-when-trying-to-commit-from-visual-studio-2015-file-opensdf
+*.opensdf
