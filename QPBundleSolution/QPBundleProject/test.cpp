@@ -1,7 +1,7 @@
 #include "stdafx.h"
 int main()
 {
-	//adkfjjj 27
+	//adkfjjj 27 28
 	using namespace std;
 	using namespace Eigen;
 	const int Num_of_Probs = 7;
