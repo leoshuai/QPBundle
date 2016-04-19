@@ -38,9 +38,6 @@
     <ClCompile Include="InFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EigenMosek.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
