@@ -1,20 +1,22 @@
 #pragma once
 //typedef Matrix<MSKrealt, Dynamic, 1> VectorXMd;
-
-template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
+//typedef Matrix<int,Dynamic,1>
+template<typename T> OutData QPB(ProbData prob, const Eigen::Ref<const Eigen::VectorXd>& x, T &feval)
 {
 	using namespace std;
 	using namespace Eigen;
 	clock_t start = clock();
 	OutData o;
-	int n = x.size();
+	__int64 n = x.size();
 	int k = 0;
 	int l = 0;
 	int k_l = 0;
 	bool b1 = false;
+	double *xx = (double*)calloc(n + 1, sizeof(double));
 	double fx, ModelReduction, fxs, MSK_time;
 	VectorXd xStar(n), sStar(n), s(n), One;
-	const VectorXd rs;
+	//VectorXi rs;
+	Matrix<int, Dynamic, 1> rs;
 	rs.setLinSpaced(n, 0, n - 1);
 	One.setOnes(n);
 	feval(x, fx, s);
@@ -81,7 +83,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 					Ind_constraint,/* Index of constraint.*/
 					MSK_BK_UP,/* Bound key.*/
 					-MSK_INFINITY,/* Numerical value of lower bound.*/
-					s.dot(y) - fx);/* Numerical value of upper bound.*/
+					s.dot(x) - fx);/* Numerical value of upper bound.*/
 			if (r == MSK_RES_OK)/* Input the Q for the objective. */
 				r = MSK_putqobj(task, n, rs.data(), rs.data(), One.data());
 			if (r == MSK_RES_OK)
@@ -111,7 +113,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 					{
 
 
-						MSK_STREAM_LOG MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
+						MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
 
 						switch (solsta)
 						{
@@ -121,7 +123,7 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 								MSK_SOL_ITR,    /* Request the interior solution. */
 								xx);
 
-							printf("Optimal primal solution***********************\n");
+						//	printf("Optimal primal solution***********************\n");
 							/*for (size_t j = 0; j < n + 1; ++j)
 								printf("x[%d]: %e\n", j, xx[j]);*/
 
@@ -243,4 +245,5 @@ template<typename T> OutData QPB(ProbData prob, cVec& x, T &feval)
 		cout << o.time << " is the time\n";
 		cout << o.t_CPX << " is the MOSEK time\n";
 	}
+	return o;
 }
